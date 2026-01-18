@@ -104,7 +104,7 @@ const App: React.FC = () => {
         if (!selectedFamily) return [];
         return SEED_PRODUCTS
             .filter(p => p.name.includes(selectedFamily))
-            .map(p => `${p.diameter.toFixed(1)} x ${p.length}mm`)
+            .map(p => `${parseFloat(p.diameter.toFixed(1))}mm x ${p.length}mm`)
             .filter((v, i, a) => a.indexOf(v) === i);
     }, [selectedFamily]);
 
@@ -130,8 +130,7 @@ const App: React.FC = () => {
             const onlyVacuum = ['7024', '8018-B2', '10018-M', '10018-G', '10018-D2', '8018-G'];
             if (l.packing === 'Vacuum' && (l.family.startsWith('7018') || onlyVacuum.includes(l.family))) displayName = `VACCUM ${l.family}`;
             else if (['6013', '7018', '7018-1', '8018-C3', 'Ni', 'NiFe'].includes(l.family)) displayName = `SPARKWELD ${l.family}`;
-            const cleanDia = parseFloat(l.size.split(' x ')[0]);
-            return `${displayName} (${cleanDia}mm) - ${l.qty} kg`;
+            return `${displayName} (${l.size}) - ${l.qty} kg`;
         }).join('\n');
         return `${repLine}\n${coLine}\n${prodHeader}\n${itemLines}\nTotal weight: ${lines.reduce((a, l) => a + l.qty, 0).toLocaleString()} kg`;
     };
@@ -179,7 +178,7 @@ const App: React.FC = () => {
                             <div className="divide-y divide-slate-100">
                                 {lines.map((l) => (
                                     <div key={l.id} className="p-4 flex justify-between items-center">
-                                        <div><p className="font-bold text-slate-800">{l.family} <span className="text-indigo-600">({parseFloat(l.size.split(' x ')[0])}mm)</span></p><p className="text-xs text-slate-500 font-medium">{l.qty}kg • {l.packing}</p></div>
+                                        <div><p className="font-bold text-slate-800">{l.family} <span className="text-indigo-600">({l.size})</span></p><p className="text-xs text-slate-500 font-medium">{l.qty}kg • {l.packing}</p></div>
                                         <button onClick={() => setLines(lines.filter(line => line.id !== l.id))} className="p-2 text-red-400 hover:text-red-500"><TrashIcon className="w-5 h-5" /></button>
                                     </div>
                                 ))}
