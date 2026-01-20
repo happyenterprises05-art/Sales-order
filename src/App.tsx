@@ -10,7 +10,9 @@ import {
     XMarkIcon,
     ClipboardIcon,
     QuestionMarkCircleIcon,
-    InformationCircleIcon
+    InformationCircleIcon,
+    ArrowRightIcon,
+    ArrowLeftIcon
 } from '@heroicons/react/24/outline';
 
 interface OrderLine {
@@ -58,60 +60,65 @@ const ShareModal: React.FC<{
     );
 };
 
-const GuideModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+const GuideModal: React.FC<{ isOpen: boolean; onClose: () => void; activeStep: number; setActiveStep: (s: number) => void }> = ({ isOpen, onClose, activeStep, setActiveStep }) => {
     if (!isOpen) return null;
+
+    const steps = [
+        {
+            title: "Order Information",
+            desc: "Start by entering your name and the customer's company. Note that PO Date defaults to today but can be adjusted.",
+            color: "bg-indigo-100 text-indigo-600"
+        },
+        {
+            title: "Selecting Products",
+            desc: "Choose the family and size. CRITICAL: For 7018, you must pick 'Normal' or 'Vacuum' style.",
+            color: "bg-emerald-100 text-emerald-600"
+        },
+        {
+            title: "Place Order",
+            desc: "Click 'Add to List' for each item. Once finished, click 'PLACE ORDER' to copy the summary for WhatsApp.",
+            color: "bg-amber-100 text-amber-600"
+        }
+    ];
+
+    const step = steps[activeStep - 1];
+
     return (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 110, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)' }}>
-            <div className="bg-white rounded-[32px] shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-200">
-                <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                    <div>
-                        <h3 className="text-xl font-black text-slate-900 tracking-tight">User Guide</h3>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Sales Team Instructions</p>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 110, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(2px)' }}>
+            <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden animate-in fade-in zoom-in duration-300 border border-slate-200">
+                <div className="p-6 space-y-4">
+                    <div className="flex justify-between items-center">
+                        <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${step.color}`}>
+                            Step {activeStep} of 3
+                        </div>
+                        <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+                            <XMarkIcon className="w-5 h-5" />
+                        </button>
                     </div>
-                    <button onClick={onClose} className="p-2 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-slate-600 shadow-sm transition-all">
-                        <XMarkIcon className="w-6 h-6" />
-                    </button>
-                </div>
-                <div className="p-8 space-y-6 overflow-y-auto max-h-[70vh]">
-                    <div className="flex space-x-4">
-                        <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
-                            <span className="text-indigo-600 font-black">1</span>
-                        </div>
-                        <div className="space-y-1">
-                            <p className="font-bold text-slate-900">Order Information</p>
-                            <p className="text-sm text-slate-500 leading-relaxed">Enter your name, Company Name, and PO details. The date defaults to today but can be changed via the calendar.</p>
-                        </div>
+
+                    <div className="space-y-2">
+                        <h3 className="text-xl font-black text-slate-900 tracking-tight">{step.title}</h3>
+                        <p className="text-sm text-slate-500 leading-relaxed font-medium">{step.desc}</p>
                     </div>
-                    <div className="flex space-x-4">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
-                            <span className="text-emerald-600 font-black">2</span>
-                        </div>
-                        <div className="space-y-1">
-                            <p className="font-bold text-slate-900">Selecting Products</p>
-                            <p className="text-sm text-slate-500 leading-relaxed">Choose the product Family. If you pick <strong>7018</strong>, you must specifically select <strong>Normal</strong> or <strong>Vacuum</strong> packing.</p>
-                        </div>
+
+                    <div className="flex space-x-2 pt-2">
+                        {activeStep > 1 && (
+                            <button
+                                onClick={() => setActiveStep(activeStep - 1)}
+                                className="flex-1 py-3 px-4 bg-slate-100 text-slate-600 font-bold rounded-xl flex items-center justify-center space-x-2 hover:bg-slate-200 transition-all"
+                            >
+                                <ArrowLeftIcon className="w-4 h-4" />
+                                <span>Back</span>
+                            </button>
+                        )}
+                        <button
+                            onClick={() => activeStep < 3 ? setActiveStep(activeStep + 1) : onClose()}
+                            className="flex-[2] py-3 px-4 bg-indigo-600 text-white font-bold rounded-xl flex items-center justify-center space-x-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200"
+                        >
+                            <span>{activeStep === 3 ? "Finish Tour" : "Next Step"}</span>
+                            {activeStep < 3 && <ArrowRightIcon className="w-4 h-4" />}
+                        </button>
                     </div>
-                    <div className="flex space-x-4">
-                        <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
-                            <span className="text-amber-600 font-black">3</span>
-                        </div>
-                        <div className="space-y-1">
-                            <p className="font-bold text-slate-900">Add & Share</p>
-                            <p className="text-sm text-slate-500 leading-relaxed">Click <strong>"Add to List"</strong>. Once all items are added, click <strong>"PLACE ORDER"</strong> to copy the summary for WhatsApp.</p>
-                        </div>
-                    </div>
-                    <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 flex items-start space-x-3">
-                        <InformationCircleIcon className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
-                        <p className="text-[11px] text-slate-600 font-medium leading-relaxed">
-                            <strong className="text-indigo-600 uppercase tracking-wider block mb-1">Pro Tip</strong>
-                            The product form resets automatically after each add. If you make a mistake, use the red trash icon to remove an item from your current selection.
-                        </p>
-                    </div>
-                </div>
-                <div className="px-8 py-5 bg-slate-900 border-t border-slate-800">
-                    <button onClick={onClose} className="w-full py-3 bg-indigo-600 text-white font-black rounded-xl hover:bg-indigo-700 transition-all uppercase tracking-widest text-sm shadow-lg shadow-indigo-900/20">
-                        Got it, Thanks!
-                    </button>
                 </div>
             </div>
         </div>
@@ -127,6 +134,7 @@ const App: React.FC = () => {
     const [copied, setCopied] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isGuideOpen, setIsGuideOpen] = useState(false);
+    const [activeTourStep, setActiveTourStep] = useState(1);
 
     const [selectedFamily, setSelectedFamily] = useState('');
     const [selectedSize, setSelectedSize] = useState('');
@@ -214,73 +222,76 @@ const App: React.FC = () => {
             <div className="max-w-xl mx-auto space-y-6">
                 <div className="text-center space-y-2 relative">
                     <button
-                        onClick={() => setIsGuideOpen(true)}
-                        className="absolute right-0 top-0 p-2 text-slate-400 hover:text-indigo-600 transition-colors bg-white rounded-xl border border-slate-200 shadow-sm flex items-center space-x-2"
+                        onClick={() => { setIsGuideOpen(true); setActiveTourStep(1); }}
+                        className={`absolute right-0 top-0 p-2 transition-all bg-white rounded-xl border shadow-sm flex items-center space-x-2 ${isGuideOpen ? 'ring-2 ring-indigo-500 border-indigo-500' : 'text-slate-400 hover:text-indigo-600 border-slate-200'}`}
                     >
                         <QuestionMarkCircleIcon className="w-5 h-5" />
-                        <span className="text-[10px] font-black uppercase tracking-widest pr-1">Guide</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest pr-1">Tour</span>
                     </button>
-                    <div className="inline-flex p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200">
+                    <div className="inline-flex p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200 pulse-glow">
                         <ShoppingBagIcon className="w-8 h-8 text-white" />
                     </div>
                     <h1 className="text-2xl font-bold text-slate-900">Order Dispatch Helper</h1>
                     <p className="text-slate-500 text-sm">Create and share order details instantly</p>
                 </div>
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+
+                <div className={`bg-white rounded-2xl shadow-sm border p-6 space-y-4 transition-all duration-500 ${isGuideOpen && activeTourStep === 1 ? 'ring-4 ring-indigo-500/30 border-indigo-500 scale-[1.02] shadow-xl' : 'border-slate-200'}`}>
                     <div className="flex items-center space-x-2 text-indigo-600 mb-2">
                         <IdentificationIcon className="w-5 h-5" />
                         <span className="font-bold text-sm uppercase tracking-wider">Order Information</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input value={salesPerson} onChange={(e) => setSalesPerson(e.target.value)} placeholder="Sales Representative Name" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold" />
-                        <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Customer / Co Name" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold" />
+                        <input value={salesPerson} onChange={(e) => setSalesPerson(e.target.value)} placeholder="Sales Representative Name" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold transition-all focus:bg-white focus:ring-2 focus:ring-indigo-100" />
+                        <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Customer / Co Name" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold transition-all focus:bg-white focus:ring-2 focus:ring-indigo-100" />
                         <div className="flex flex-col">
                             <label className="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1">PO Date</label>
-                            <input type="date" value={poDate} onChange={(e) => setPoDate(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold" />
+                            <input type="date" value={poDate} onChange={(e) => setPoDate(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold transition-all focus:bg-white focus:ring-2 focus:ring-indigo-100" />
                         </div>
                         <div className="flex flex-col">
                             <label className="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1">PO Number</label>
-                            <input value={poNumber} onChange={(e) => setPoNumber(e.target.value)} placeholder="PO Number (Optional)" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold" />
+                            <input value={poNumber} onChange={(e) => setPoNumber(e.target.value)} placeholder="PO Number (Optional)" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold transition-all focus:bg-white focus:ring-2 focus:ring-indigo-100" />
                         </div>
                     </div>
                 </div>
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+
+                <div className={`bg-white rounded-2xl shadow-sm border p-6 space-y-4 transition-all duration-500 ${isGuideOpen && activeTourStep === 2 ? 'ring-4 ring-emerald-500/30 border-emerald-500 scale-[1.02] shadow-xl' : 'border-slate-200'}`}>
                     <div className="flex items-center space-x-2 text-indigo-600 mb-2"><PlusIcon className="w-5 h-5" /><span className="font-bold text-sm uppercase tracking-wider">Select Product</span></div>
                     <div className="grid grid-cols-1 gap-4">
-                        <select value={selectedFamily} onChange={(e) => { setSelectedFamily(e.target.value); setSelectedSize(''); setSelectedPacking(''); }} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold outline-none">
+                        <select value={selectedFamily} onChange={(e) => { setSelectedFamily(e.target.value); setSelectedSize(''); setSelectedPacking(''); }} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold outline-none focus:bg-white">
                             <option value="">Select Family...</option>{FAMILY_OPTIONS.map(f => <option key={f} value={f}>{f}</option>)}
                         </select>
-                        <select value={currentPacking} disabled={isPackingDisabled || !selectedFamily} onChange={(e) => setSelectedPacking(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold disabled:opacity-60 outline-none">
+                        <select value={currentPacking} disabled={isPackingDisabled || !selectedFamily} onChange={(e) => setSelectedPacking(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold disabled:opacity-60 outline-none focus:bg-white">
                             {!isPackingDisabled && <option value="">Select packing style</option>}
                             {availablePackingOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         </select>
-                        <select value={selectedSize} disabled={!selectedFamily} onChange={(e) => setSelectedSize(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold disabled:opacity-50 outline-none">
+                        <select value={selectedSize} disabled={!selectedFamily} onChange={(e) => setSelectedSize(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold disabled:opacity-50 outline-none focus:bg-white">
                             <option value="">Select Size...</option>{availableSizes.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
-                        <input type="number" value={qty} onChange={(e) => setQty(e.target.value)} placeholder="Quantity in KG" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold outline-none" />
+                        <input type="number" value={qty} onChange={(e) => setQty(e.target.value)} placeholder="Quantity in KG" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold outline-none focus:bg-white" />
                     </div>
-                    <button onClick={addLine} className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold flex items-center justify-center space-x-2 shadow-lg"><PlusIcon className="w-5 h-5" /><span>Add to List</span></button>
+                    <button onClick={addLine} className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold flex items-center justify-center space-x-2 shadow-lg hover:bg-slate-800 transition-all"><PlusIcon className="w-5 h-5" /><span>Add to List</span></button>
                 </div>
+
                 {lines.length > 0 && (
-                    <div className="space-y-4 pb-12">
+                    <div className={`space-y-4 pb-12 transition-all duration-500 ${isGuideOpen && activeTourStep === 3 ? 'ring-4 ring-amber-500/30 border-amber-500 scale-[1.02]' : ''}`}>
                         <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
                             <div className="p-4 bg-slate-900 text-white flex justify-between items-center text-sm font-bold uppercase"><span>Current Selection</span><span className="text-indigo-400">{lines.reduce((a, l) => a + l.qty, 0).toLocaleString()} KG</span></div>
                             <div className="divide-y divide-slate-100">
                                 {lines.map((l) => (
-                                    <div key={l.id} className="p-4 flex justify-between items-center">
+                                    <div key={l.id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
                                         <div><p className="font-bold text-slate-800">{l.family} <span className="text-indigo-600">({l.size})</span></p><p className="text-xs text-slate-500 font-medium">{l.qty}kg • {l.packing}</p></div>
-                                        <button onClick={() => setLines(lines.filter(line => line.id !== l.id))} className="p-2 text-red-400 hover:text-red-500"><TrashIcon className="w-5 h-5" /></button>
+                                        <button onClick={() => setLines(lines.filter(line => line.id !== l.id))} className="p-2 text-red-400 hover:text-red-500 transition-colors"><TrashIcon className="w-5 h-5" /></button>
                                     </div>
                                 ))}
                             </div>
                             <div className="p-4 bg-slate-50">
-                                <button onClick={() => { if (!customerName) alert("Enter Co Name first."); else setIsModalOpen(true); }} className="w-full py-5 rounded-2xl font-black text-lg flex items-center justify-center space-x-3 bg-indigo-600 text-white shadow-xl shadow-indigo-200"><ArrowRightCircleIcon className="w-6 h-6" /><span>PLACE ORDER</span></button>
+                                <button onClick={() => { if (!customerName) alert("Enter Co Name first."); else setIsModalOpen(true); }} className="w-full py-5 rounded-2xl font-black text-lg flex items-center justify-center space-x-3 bg-indigo-600 text-white shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all"><ArrowRightCircleIcon className="w-6 h-6" /><span>PLACE ORDER</span></button>
                             </div>
                         </div>
-                        <ShareModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} message={generateMessage()} onCopy={() => { navigator.clipboard.writeText(generateMessage()); setCopied(true); setTimeout(() => setCopied(false), 2000); }} copied={copied} />
-                        <GuideModal isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
                     </div>
                 )}
+                <ShareModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} message={generateMessage()} onCopy={() => { navigator.clipboard.writeText(generateMessage()); setCopied(true); setTimeout(() => setCopied(false), 2000); }} copied={copied} />
+                <GuideModal isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} activeStep={activeTourStep} setActiveStep={setActiveTourStep} />
             </div>
         </div>
     );
