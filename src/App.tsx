@@ -60,7 +60,7 @@ const App: React.FC = () => {
     const [customerName, setCustomerName] = useState('');
     const [salesPerson, setSalesPerson] = useState('');
     const [poNumber, setPoNumber] = useState('');
-    const [poDate, setPoDate] = useState('');
+    const [poDate, setPoDate] = useState(new Date().toISOString().split('T')[0]); // Default to today's date
     const [lines, setLines] = useState<OrderLine[]>([]);
     const [copied, setCopied] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -99,8 +99,8 @@ const App: React.FC = () => {
             if (['7024', '8018-B2', '10018-M', '10018-G', '10018-D2', '8018-G'].includes(selectedFamily)) return 'Vacuum';
             return packingDefaults[selectedFamily] || 'Normal';
         }
-        return selectedPacking || availablePackingOptions[0];
-    }, [selectedFamily, selectedPacking, availablePackingOptions, isPackingDisabled]);
+        return selectedPacking;
+    }, [selectedFamily, selectedPacking, isPackingDisabled]);
 
     const availableSizes = useMemo(() => {
         if (!selectedFamily) return [];
@@ -111,7 +111,7 @@ const App: React.FC = () => {
     }, [selectedFamily]);
 
     const addLine = () => {
-        if (!selectedFamily || !selectedSize || !qty) return;
+        if (!selectedFamily || !selectedSize || !qty || (!isPackingDisabled && !selectedPacking)) return;
         setLines([...lines, {
             id: Math.random().toString(36).substr(2, 9),
             family: selectedFamily,
@@ -126,7 +126,11 @@ const App: React.FC = () => {
     const generateMessage = () => {
         const repLine = `Sales rep: ${salesPerson || 'N/A'}`;
         const coLine = `Co Name: ${(customerName || 'N/A').toUpperCase()}`;
-        const poDateLine = `PO Date: ${poDate || 'If any'}`;
+
+        // Format date to DD-MM-YYYY for the message
+        const formattedDate = poDate ? poDate.split('-').reverse().join('-') : 'If any';
+        const poDateLine = `PO Date: ${formattedDate}`;
+
         const poNumLine = `PO Number: ${poNumber || 'If any'}`;
         const prodHeader = `Product:`;
         const itemLines = lines.map((l) => {
@@ -157,17 +161,24 @@ const App: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input value={salesPerson} onChange={(e) => setSalesPerson(e.target.value)} placeholder="Sales Representative Name" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold" />
                         <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Customer / Co Name" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold" />
-                        <input value={poDate} onChange={(e) => setPoDate(e.target.value)} placeholder="PO Date (Optional)" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold" />
-                        <input value={poNumber} onChange={(e) => setPoNumber(e.target.value)} placeholder="PO Number (Optional)" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold" />
+                        <div className="flex flex-col">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1">PO Date</label>
+                            <input type="date" value={poDate} onChange={(e) => setPoDate(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold" />
+                        </div>
+                        <div className="flex flex-col">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1">PO Number</label>
+                            <input value={poNumber} onChange={(e) => setPoNumber(e.target.value)} placeholder="PO Number (Optional)" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold" />
+                        </div>
                     </div>
                 </div>
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
                     <div className="flex items-center space-x-2 text-indigo-600 mb-2"><PlusIcon className="w-5 h-5" /><span className="font-bold text-sm uppercase tracking-wider">Select Product</span></div>
                     <div className="grid grid-cols-1 gap-4">
-                        <select value={selectedFamily} onChange={(e) => { setSelectedFamily(e.target.value); setSelectedSize(''); }} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold outline-none">
+                        <select value={selectedFamily} onChange={(e) => { setSelectedFamily(e.target.value); setSelectedSize(''); setSelectedPacking(''); }} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold outline-none">
                             <option value="">Select Family...</option>{FAMILY_OPTIONS.map(f => <option key={f} value={f}>{f}</option>)}
                         </select>
                         <select value={currentPacking} disabled={isPackingDisabled || !selectedFamily} onChange={(e) => setSelectedPacking(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold disabled:opacity-60 outline-none">
+                            {!isPackingDisabled && <option value="">Select packing style</option>}
                             {availablePackingOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         </select>
                         <select value={selectedSize} disabled={!selectedFamily} onChange={(e) => setSelectedSize(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold disabled:opacity-50 outline-none">
