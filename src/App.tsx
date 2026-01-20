@@ -119,19 +119,22 @@ const App: React.FC = () => {
             packing: currentPacking,
             qty: parseFloat(qty)
         }]);
-        setQty('');
+        // Reset all selection fields
+        setSelectedFamily('');
+        setSelectedSize('');
         setSelectedPacking('');
+        setQty('');
     };
 
     const generateMessage = () => {
         const repLine = `Sales rep: ${salesPerson || 'N/A'}`;
         const coLine = `Co Name: ${(customerName || 'N/A').toUpperCase()}`;
 
-        // Format date to DD-MM-YYYY for the message
-        const formattedDate = poDate ? poDate.split('-').reverse().join('-') : 'If any';
+        // Format date to DD-MM-YYYY for the message if it exists
+        const formattedDate = poDate ? poDate.split('-').reverse().join('-') : '';
         const poDateLine = `PO Date: ${formattedDate}`;
 
-        const poNumLine = `PO Number: ${poNumber || 'If any'}`;
+        const poNumLine = `PO Number: ${poNumber || ''}`;
         const prodHeader = `Product:`;
         const itemLines = lines.map((l) => {
             let displayName = l.family;
