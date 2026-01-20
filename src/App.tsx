@@ -8,7 +8,9 @@ import {
     ShoppingBagIcon,
     IdentificationIcon,
     XMarkIcon,
-    ClipboardIcon
+    ClipboardIcon,
+    QuestionMarkCircleIcon,
+    InformationCircleIcon
 } from '@heroicons/react/24/outline';
 
 interface OrderLine {
@@ -56,6 +58,66 @@ const ShareModal: React.FC<{
     );
 };
 
+const GuideModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+    if (!isOpen) return null;
+    return (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 110, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)' }}>
+            <div className="bg-white rounded-[32px] shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <div>
+                        <h3 className="text-xl font-black text-slate-900 tracking-tight">User Guide</h3>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Sales Team Instructions</p>
+                    </div>
+                    <button onClick={onClose} className="p-2 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-slate-600 shadow-sm transition-all">
+                        <XMarkIcon className="w-6 h-6" />
+                    </button>
+                </div>
+                <div className="p-8 space-y-6 overflow-y-auto max-h-[70vh]">
+                    <div className="flex space-x-4">
+                        <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
+                            <span className="text-indigo-600 font-black">1</span>
+                        </div>
+                        <div className="space-y-1">
+                            <p className="font-bold text-slate-900">Order Information</p>
+                            <p className="text-sm text-slate-500 leading-relaxed">Enter your name, Company Name, and PO details. The date defaults to today but can be changed via the calendar.</p>
+                        </div>
+                    </div>
+                    <div className="flex space-x-4">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                            <span className="text-emerald-600 font-black">2</span>
+                        </div>
+                        <div className="space-y-1">
+                            <p className="font-bold text-slate-900">Selecting Products</p>
+                            <p className="text-sm text-slate-500 leading-relaxed">Choose the product Family. If you pick <strong>7018</strong>, you must specifically select <strong>Normal</strong> or <strong>Vacuum</strong> packing.</p>
+                        </div>
+                    </div>
+                    <div className="flex space-x-4">
+                        <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+                            <span className="text-amber-600 font-black">3</span>
+                        </div>
+                        <div className="space-y-1">
+                            <p className="font-bold text-slate-900">Add & Share</p>
+                            <p className="text-sm text-slate-500 leading-relaxed">Click <strong>"Add to List"</strong>. Once all items are added, click <strong>"PLACE ORDER"</strong> to copy the summary for WhatsApp.</p>
+                        </div>
+                    </div>
+                    <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 flex items-start space-x-3">
+                        <InformationCircleIcon className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
+                        <p className="text-[11px] text-slate-600 font-medium leading-relaxed">
+                            <strong className="text-indigo-600 uppercase tracking-wider block mb-1">Pro Tip</strong>
+                            The product form resets automatically after each add. If you make a mistake, use the red trash icon to remove an item from your current selection.
+                        </p>
+                    </div>
+                </div>
+                <div className="px-8 py-5 bg-slate-900 border-t border-slate-800">
+                    <button onClick={onClose} className="w-full py-3 bg-indigo-600 text-white font-black rounded-xl hover:bg-indigo-700 transition-all uppercase tracking-widest text-sm shadow-lg shadow-indigo-900/20">
+                        Got it, Thanks!
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const App: React.FC = () => {
     const [customerName, setCustomerName] = useState('');
     const [salesPerson, setSalesPerson] = useState('');
@@ -64,6 +126,7 @@ const App: React.FC = () => {
     const [lines, setLines] = useState<OrderLine[]>([]);
     const [copied, setCopied] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isGuideOpen, setIsGuideOpen] = useState(false);
 
     const [selectedFamily, setSelectedFamily] = useState('');
     const [selectedSize, setSelectedSize] = useState('');
@@ -149,7 +212,14 @@ const App: React.FC = () => {
     return (
         <div className="min-h-screen bg-slate-50 p-4 md:p-8">
             <div className="max-w-xl mx-auto space-y-6">
-                <div className="text-center space-y-2">
+                <div className="text-center space-y-2 relative">
+                    <button
+                        onClick={() => setIsGuideOpen(true)}
+                        className="absolute right-0 top-0 p-2 text-slate-400 hover:text-indigo-600 transition-colors bg-white rounded-xl border border-slate-200 shadow-sm flex items-center space-x-2"
+                    >
+                        <QuestionMarkCircleIcon className="w-5 h-5" />
+                        <span className="text-[10px] font-black uppercase tracking-widest pr-1">Guide</span>
+                    </button>
                     <div className="inline-flex p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200">
                         <ShoppingBagIcon className="w-8 h-8 text-white" />
                     </div>
@@ -208,6 +278,7 @@ const App: React.FC = () => {
                             </div>
                         </div>
                         <ShareModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} message={generateMessage()} onCopy={() => { navigator.clipboard.writeText(generateMessage()); setCopied(true); setTimeout(() => setCopied(false), 2000); }} copied={copied} />
+                        <GuideModal isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
                     </div>
                 )}
             </div>
