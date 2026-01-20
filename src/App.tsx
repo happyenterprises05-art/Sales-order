@@ -59,6 +59,8 @@ const ShareModal: React.FC<{
 const App: React.FC = () => {
     const [customerName, setCustomerName] = useState('');
     const [salesPerson, setSalesPerson] = useState('');
+    const [poNumber, setPoNumber] = useState('');
+    const [poDate, setPoDate] = useState('');
     const [lines, setLines] = useState<OrderLine[]>([]);
     const [copied, setCopied] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -124,6 +126,8 @@ const App: React.FC = () => {
     const generateMessage = () => {
         const repLine = `Sales rep: ${salesPerson || 'N/A'}`;
         const coLine = `Co Name: ${(customerName || 'N/A').toUpperCase()}`;
+        const poDateLine = `PO Date: ${poDate || 'If any'}`;
+        const poNumLine = `PO Number: ${poNumber || 'If any'}`;
         const prodHeader = `Product:`;
         const itemLines = lines.map((l) => {
             let displayName = l.family;
@@ -132,7 +136,7 @@ const App: React.FC = () => {
             else if (['6013', '7018', '7018-1', '8018-C3', 'Ni', 'NiFe'].includes(l.family)) displayName = `SPARKWELD ${l.family}`;
             return `${displayName} (${l.size}) - ${l.qty} kg`;
         }).join('\n');
-        return `${repLine}\n${coLine}\n${prodHeader}\n${itemLines}\nTotal weight: ${lines.reduce((a, l) => a + l.qty, 0).toLocaleString()} kg`;
+        return `${repLine}\n${coLine}\n${poDateLine}\n${poNumLine}\n${prodHeader}\n${itemLines}\nTotal weight: ${lines.reduce((a, l) => a + l.qty, 0).toLocaleString()} kg`;
     };
 
     return (
@@ -150,9 +154,11 @@ const App: React.FC = () => {
                         <IdentificationIcon className="w-5 h-5" />
                         <span className="font-bold text-sm uppercase tracking-wider">Order Information</span>
                     </div>
-                    <div className="grid grid-cols-1 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input value={salesPerson} onChange={(e) => setSalesPerson(e.target.value)} placeholder="Sales Representative Name" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold" />
                         <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Customer / Co Name" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold" />
+                        <input value={poDate} onChange={(e) => setPoDate(e.target.value)} placeholder="PO Date (Optional)" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold" />
+                        <input value={poNumber} onChange={(e) => setPoNumber(e.target.value)} placeholder="PO Number (Optional)" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold" />
                     </div>
                 </div>
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
